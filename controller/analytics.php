@@ -10,7 +10,7 @@
         $province = $_POST['province'];
         $population = $_POST['population'];
 
-        // Process the submitted data (e.g., save to database)
+        // Process the submitted data
         $query = "INSERT INTO m1brgy_report_info (report_for_month, report_year, 
             brgy_name, bhs_name, city_name, province_name, projected_population_year) 
             VALUES ('$fhsis_month', '$fhsis_year', '$barangay_name', '$bhs_name', 
