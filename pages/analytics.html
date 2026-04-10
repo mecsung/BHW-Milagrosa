@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>M1BRGY FHSIS Report</title>
+  <title>BHW | M1BRGY FHSIS Report</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -63,39 +63,44 @@
       <div id="status-message" class="hidden mb-4 p-4 rounded-lg"></div>
 
       <!-- REPORT HEADER SECTION -->
-      <section class="bg-white rounded-xl shadow-lg mb-6 p-6">
-        <h2 class="text-lg font-bold text-primary mb-4 border-b-2 border-primary pb-2">Report Information</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="report-field">
-            <label for="fhsis-month">FHSIS Report for the Month:</label>
-            <input type="text" id="fhsis-month" class="cell-input" placeholder="Enter month" style="width: 150px;">
+      <form action="../controller/analytics.php" method="POST" id="report-form">
+        <section class="bg-white rounded-xl shadow-lg mb-6 p-6">
+          <h2 class="text-lg font-bold text-primary mb-4 border-b-2 border-primary pb-2">Report Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="report-field">
+              <label for="fhsis-month">FHSIS Report for the Month:</label>
+              <input type="text" name="fhsis-month" id="fhsis-month" class="cell-input" placeholder="Enter month" style="width: 150px;">
+            </div>
+            <div class="report-field">
+              <label for="fhsis-year">Year:</label>
+              <input type="text" name="fhsis-year" id="fhsis-year" class="cell-input" placeholder="Enter year" style="width: 100px;">
+            </div>
+            <div class="report-field">
+              <label for="barangay-name-field">Name of Barangay:</label>
+              <input type="text" name="barangay-name" id="barangay-name-field" class="cell-input" placeholder="Enter barangay name" style="min-width: 300px;">
+            </div>
+            <div class="report-field">
+              <label for="bhs-name-field">Name of BHS:</label>
+              <input type="text" name="bhs-name" id="bhs-name-field" class="cell-input" placeholder="Enter BHS name" style="min-width: 300px;">
+            </div>
+            <div class="report-field">
+              <label for="municipality-field">Name of Municipality/City:</label>
+              <input type="text" name="municipality" id="municipality-field" class="cell-input" placeholder="Enter municipality/city" style="min-width: 300px;">
+            </div>
+            <div class="report-field">
+              <label for="province-field">Name of Province:</label>
+              <input type="text" name="province" id="province-field" class="cell-input" placeholder="Enter province" style="min-width: 300px;">
+            </div>
+            <div class="report-field">
+              <label for="population-field">Projected Population of the Year:</label>
+              <input type="number" name="population" id="population-field" class="cell-input" placeholder="Enter population" style="min-width: 200px;">
+            </div>
+            <div class="report-field">
+              <input type="submit" name="submitReportInformation" id="submit-report" class="cell-input bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-dark transition" value="Submit">
+            </div>
           </div>
-          <div class="report-field">
-            <label for="fhsis-year">Year:</label>
-            <input type="text" id="fhsis-year" class="cell-input" placeholder="Enter year" style="width: 100px;">
-          </div>
-          <div class="report-field">
-            <label for="barangay-name-field">Name of Barangay:</label>
-            <input type="text" id="barangay-name-field" class="cell-input" placeholder="Enter barangay name" style="min-width: 300px;">
-          </div>
-          <div class="report-field">
-            <label for="bhs-name-field">Name of BHS:</label>
-            <input type="text" id="bhs-name-field" class="cell-input" placeholder="Enter BHS name" style="min-width: 300px;">
-          </div>
-          <div class="report-field">
-            <label for="municipality-field">Name of Municipality/City:</label>
-            <input type="text" id="municipality-field" class="cell-input" placeholder="Enter municipality/city" style="min-width: 300px;">
-          </div>
-          <div class="report-field">
-            <label for="province-field">Name of Province:</label>
-            <input type="text" id="province-field" class="cell-input" placeholder="Enter province" style="min-width: 300px;">
-          </div>
-          <div class="report-field">
-            <label for="population-field">Projected Population of the Year:</label>
-            <input type="number" id="population-field" class="cell-input" placeholder="Enter population" style="min-width: 200px;">
-          </div>
-        </div>
-      </section>
+        </section>
+      </form>
 
       <div class="flex flex-wrap gap-2 mb-6 no-print">
         <button onclick="saveReport()" class="bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-dark transition flex items-center gap-2">
@@ -750,21 +755,20 @@
     </div>
   </div>
 </div>
-
-      <footer class="bg-white rounded-xl shadow-lg p-6 no-print">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="text-gray-600 text-sm">
-            <p>Prepared by: _______________________</p>
-            <p class="mt-2">Date: _______________________</p>
-          </div>
-          <div class="text-gray-600 text-sm text-right">
-            <p>Verified by: _______________________</p>
-            <p class="mt-2">Position: _______________________</p>
-          </div>
+    <footer class="bg-white rounded-xl shadow-lg p-6 no-print">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="text-gray-600 text-sm">
+          <p>Prepared by: _______________________</p>
+          <p class="mt-2">Date: _______________________</p>
         </div>
-      </footer>
-    </div>
+        <div class="text-gray-600 text-sm text-right">
+          <p>Verified by: _______________________</p>
+          <p class="mt-2">Position: _______________________</p>
+        </div>
+      </div>
+    </footer>
   </div>
+</div>
 
   <script>
     const defaultConfig = {
