@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 // ── 1. Database credentials ───────────────────────────────────────────────────
-require '../model/constants.php';
+//require '../model/constants.php';
+require 'checkRecordId.php';
 
 // ── 2. Headers ────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
@@ -25,7 +26,7 @@ if (json_last_error() !== JSON_ERROR_NONE || $data === null) {
     exit;
 }
 
-$recordId = $data['record_id'] ?? null;
+$recordId = checkRecordId($data['record_id']);
 
 if (!$recordId) {
     http_response_code(400);
@@ -84,6 +85,17 @@ function execStmt(mysqli $db, string $sql, string $types, array $params): void
 try {
     $db->begin_transaction();
 
+    // If record_id supplied, delete existing rows first (replace strategy)
+    if ($recordId !== null) {
+        if (!empty($waterBody)) {
+            execStmt($db, 'DELETE FROM f_water WHERE record_id = ?', 'i', [$recordId]);
+        }
+        if (!empty($sanitationBody)) {
+            execStmt($db, 'DELETE FROM f_sanitation WHERE record_id = ?', 'i', [$recordId]);
+        }
+    }
+
+
     // ── Filariasis ─────────────────────────────────────────────────────────────
     if (!empty($waterBody)) {
         $sqlM = '
@@ -105,7 +117,7 @@ try {
             execStmt($db, $sqlM, 'ssds', [$rid, $ind, $count, $remarks]);
         }
     }
-// ── Rabies ─────────────────────────────────────────────────────────────
+    // ── Rabies ─────────────────────────────────────────────────────────────
     if (!empty($sanitationBody)) {
         $sqlM = '
             INSERT INTO f_sanitation
@@ -128,7 +140,6 @@ try {
 
     $db->commit();
     echo json_encode(['success' => true, 'message' => 'Records saved successfully.']);
-
 } catch (RuntimeException | mysqli_sql_exception $e) {
     $db->rollback();
     http_response_code(500);

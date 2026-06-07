@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 // ── 1. Database credentials ───────────────────────────────────────────────────
-require '../model/constants.php';
+//require '../model/constants.php';
+require 'checkRecordId.php';
 
 // ── 2. Headers ────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
@@ -24,7 +26,7 @@ if (json_last_error() !== JSON_ERROR_NONE || $data === null) {
     exit;
 }
 
-$recordId = $data['record_id'] ?? null;
+$recordId = checkRecordId($data['record_id']);
 
 if (!$recordId) {
     http_response_code(400);
@@ -38,11 +40,11 @@ $mortality = $data['mortality'] ?? [];
 $natality  = $data['natality']  ?? [];
 
 // Require at least one section
-if (empty($mortality) && empty($natality)) {
+/*if (empty($mortality) && empty($natality)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'No data provided.']);
     exit;
-}
+}*/
 
 // ── 4. Connect (mysqli) ───────────────────────────────────────────────────────
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // throw exceptions on error
@@ -82,6 +84,15 @@ function execStmt(mysqli $db, string $sql, string $types, array $params): void
 // ── 6. Save inside a transaction ──────────────────────────────────────────────
 try {
     $db->begin_transaction();
+    // If record_id supplied, delete existing rows first (replace strategy)
+    if ($recordId !== null) {
+        if (!empty($mortality)) {
+            execStmt($db, 'DELETE FROM vital_mortality WHERE record_id = ?', 'i', [$recordId]);
+        }
+        if (!empty($natality)) {
+            execStmt($db, 'DELETE FROM vital_natality WHERE record_id = ?', 'i', [$recordId]);
+        }
+    }
 
     // ── Mortality ─────────────────────────────────────────────────────────────
     if (!empty($mortality)) {
@@ -122,9 +133,9 @@ try {
 
             $rid     = $recordId;
             $ind     = mb_substr($indicator, 0, 500);
-            $male    = toFloat($row['male']   ?? null);
-            $female  = toFloat($row['female'] ?? null);
-            $total   = toFloat($row['total']  ?? null);
+            $male    = toFloat($row['col_1']   ?? null);
+            $female  = toFloat($row['col_2'] ?? null);
+            $total   = toFloat($row['col_3']  ?? null);
             $remarks = isset($row['col_4']) ? mb_substr(trim((string)$row['col_4']), 0, 1000) : null;
 
             // types: i=record_id, s=indicator, d=male, d=female, d=total, s=remarks
@@ -134,7 +145,6 @@ try {
 
     $db->commit();
     echo json_encode(['success' => true, 'message' => 'Records saved successfully.']);
-
 } catch (RuntimeException | mysqli_sql_exception $e) {
     $db->rollback();
     http_response_code(500);
